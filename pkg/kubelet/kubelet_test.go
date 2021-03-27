@@ -52,7 +52,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/client-go/kubernetes/fake"
-	"k8s.io/client-go/tools/record"
+	"k8s.io/client-go/tools/events"
 	"k8s.io/client-go/util/flowcontrol"
 	featuregatetesting "k8s.io/component-base/featuregate/testing"
 	internalapi "k8s.io/cri-api/pkg/apis"
@@ -191,7 +191,7 @@ func newTestKubeletWithImageList(
 		T:           t,
 	}
 
-	fakeRecorder := &record.FakeRecorder{}
+	fakeRecorder := &events.FakeRecorder{}
 	fakeKubeClient := &fake.Clientset{}
 	kubelet := &Kubelet{}
 	kubelet.recorder = fakeRecorder
@@ -788,7 +788,7 @@ func TestHandlePortConflicts(t *testing.T) {
 		},
 	}}
 
-	recorder := record.NewFakeRecorder(20)
+	recorder := events.NewFakeRecorder(20)
 	nodeRef := &v1.ObjectReference{
 		Kind:      "Node",
 		Name:      "testNode",
@@ -838,7 +838,7 @@ func TestHandleHostNameConflicts(t *testing.T) {
 		},
 	}}
 
-	recorder := record.NewFakeRecorder(20)
+	recorder := events.NewFakeRecorder(20)
 	nodeRef := &v1.ObjectReference{
 		Kind:      "Node",
 		Name:      "testNode",
@@ -881,7 +881,7 @@ func TestHandleNodeSelector(t *testing.T) {
 	}
 	kl.nodeLister = testNodeLister{nodes: nodes}
 
-	recorder := record.NewFakeRecorder(20)
+	recorder := events.NewFakeRecorder(20)
 	nodeRef := &v1.ObjectReference{
 		Kind:      "Node",
 		Name:      "testNode",
@@ -951,7 +951,7 @@ func TestHandleNodeSelectorBasedOnOS(t *testing.T) {
 			}
 			kl.nodeLister = testNodeLister{nodes: nodes}
 
-			recorder := record.NewFakeRecorder(20)
+			recorder := events.NewFakeRecorder(20)
 			nodeRef := &v1.ObjectReference{
 				Kind:      "Node",
 				Name:      "testNode",
@@ -986,7 +986,7 @@ func TestHandleMemExceeded(t *testing.T) {
 	}
 	kl.nodeLister = testNodeLister{nodes: nodes}
 
-	recorder := record.NewFakeRecorder(20)
+	recorder := events.NewFakeRecorder(20)
 	nodeRef := &v1.ObjectReference{
 		Kind:      "Node",
 		Name:      "testNode",
@@ -1084,7 +1084,7 @@ func TestHandlePluginResources(t *testing.T) {
 	kl.admitHandlers = lifecycle.PodAdmitHandlers{}
 	kl.admitHandlers.AddPodAdmitHandler(lifecycle.NewPredicateAdmitHandler(kl.getNodeAnyWay, lifecycle.NewAdmissionFailureHandlerStub(), updatePluginResourcesFunc))
 
-	recorder := record.NewFakeRecorder(20)
+	recorder := events.NewFakeRecorder(20)
 	nodeRef := &v1.ObjectReference{
 		Kind:      "Node",
 		Name:      "testNode",
@@ -3069,7 +3069,7 @@ func TestNewMainKubeletStandAlone(t *testing.T) {
 	defer func() {
 		fakeRuntime.Stop()
 	}()
-	fakeRecorder := &record.FakeRecorder{}
+	fakeRecorder := &events.FakeRecorder{}
 	rtSvc := createRemoteRuntimeService(endpoint, t, oteltrace.NewNoopTracerProvider())
 	kubeDep := &Dependencies{
 		Auth:                 nil,
@@ -3158,7 +3158,7 @@ func TestSyncPodSpans(t *testing.T) {
 	testKubelet := newTestKubelet(t, false)
 	kubelet := testKubelet.kubelet
 
-	recorder := record.NewFakeRecorder(20)
+	recorder := events.NewFakeRecorder(20)
 	nodeRef := &v1.ObjectReference{
 		Kind:      "Node",
 		Name:      "testNode",
